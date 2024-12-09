@@ -1,0 +1,348 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Water and Sanitation Deprivation in Kenya},
+  pdfauthor={Cynthia Anguza},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Water and Sanitation Deprivation in Kenya}
+\author{Cynthia Anguza}
+\date{2024-10-28}
+
+\begin{document}
+\maketitle
+
+\subsubsection{Introduction}\label{introduction}
+
+This R Shiny application visualizes water and sanitation deprivation
+data in Kenya. It provides interactive maps and plots to explore changes
+over time in water sources and sanitation access between 2009 and 2019.
+
+\subsubsection{Libraries Used}\label{libraries-used}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{shiny}: Framework for building interactive web applications in
+  R.
+\item
+  \textbf{shinythemes}: Provides themes for Shiny applications.
+\item
+  \textbf{leaflet}: Used for creating interactive maps.
+\item
+  \textbf{plotly}: Enables interactive plots.
+\item
+  \textbf{tidyverse}: A collection of R packages for data manipulation
+  and visualization.
+\item
+  \textbf{sf}: Used for handling spatial data.
+\end{itemize}
+
+\subsubsection{2. Setting Working Directory and Loading
+Data}\label{setting-working-directory-and-loading-data}
+
+\section{Set working directory}\label{set-working-directory}
+
+setwd(``E:/Learning'')
+
+\section{Load shapefiles}\label{load-shapefiles}
+
+kenya\_shp\_adm1 \textless-
+st\_read(``ken\_admbnda\_adm1\_iebc\_20191031.shp'')
+
+\section{Load the CSV data}\label{load-the-csv-data}
+
+data \textless-
+read.csv(``E:/Learning/water\_sanitation\_2009\_2019.csv'')
+
+\subsubsection{3. Data Diagnostics}\label{data-diagnostics}
+
+\section{Print the structure of the data for
+diagnostics}\label{print-the-structure-of-the-data-for-diagnostics}
+
+print(str(data))
+
+\section{Ensure column names are
+correct}\label{ensure-column-names-are-correct}
+
+colnames(data) \textless- gsub('' ``,''.'', colnames(data))
+print(colnames(data)) \# Print column names for verification
+
+\subsubsection{4. Data Merging}\label{data-merging}
+
+\section{Merge the shapefile data with the CSV data by
+county}\label{merge-the-shapefile-data-with-the-csv-data-by-county}
+
+kenya\_shp\_adm1 \textless- kenya\_shp\_adm1 \%\textgreater\%
+left\_join(data, by = c(``ADM1\_EN'' = ``County''))
+
+\subsubsection{5. User Interface}\label{user-interface}
+
+The UI includes a title, custom CSS for styling, and multiple tabs:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Home}: Provides a brief overview of water and sanitation
+  deprivation.
+\item
+  \textbf{Map View}: Displays an interactive map of Kenya showing water
+  access in 2019 by county.
+\item
+  \textbf{Data Visualization}: Contains graphs illustrating water and
+  sanitation indicators over time.
+\end{itemize}
+
+\section{Define UI for the
+application}\label{define-ui-for-the-application}
+
+ui \textless- fluidPage( theme = shinytheme(``flatly''),
+
+\# Custom CSS for background image tags\(head(
+    tags\)style(HTML('' \#home-content \{ position: relative;
+background-image:
+url(`\url{https://images.pexels.com/photos/1446504/pexels-photo-1446504.jpeg?auto=compress&cs=tinysrgb&w=600}');
+background-size: cover; background-position: center; color: white;
+padding: 50px; \} \#home-overlay \{ position: absolute; top: 0; left: 0;
+right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); /* Semi-transparent
+black \emph{/ z-index: 1; \} \#home-content h3, \#home-content p \{
+position: relative; z-index: 2; /} Bring text above the overlay \emph{/
+background: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 5px; \} h3
+\{ font-size: 2em; /} Increase size for headers \emph{/ \} p \{
+font-size: 1.2em; /} Increase size for paragraphs */ \} ``)) ),
+
+titlePanel(``Water and Sanitation Deprivation in Kenya''),
+
+tabsetPanel( tabPanel(``Home'', div(id = ``home-content'', div(id =
+``home-overlay''), h3(``Overview of Water and Sanitation Deprivation''),
+p(``Nearly 4 in 10 Kenyans did not have access to safe drinking water in
+2019 and 2 in 10 were deprived of adequate sanitation. However, there
+were remarkable improvements in both sectors between 2009 and 2019,
+albeit the decrease in deprivation was stronger in sanitation where it
+almost halved. Safe drinking water and basic sanitation are essential
+for the survival of children.''), tags\$div( style = ``margin-top: 20px;
+line-height: 1.5;'', HTML(''
+
+Strong efforts need to be put to tackle issues in the sector, as Kenya
+is classified as a water-scarce country. This, coupled with more
+frequent cycles of severe and unpredictable weather conditions and
+increased rates of natural resource depletion, will make water less
+available, especially in the country's arid and semi-arid areas, calling
+for urgent and sustainable solutions.
+
+\begin{verbatim}
+                 <p>Another structural issue facing the sector is that the water service providers in Kenya struggle 
+                 to raise the capital and strengthen local capacities needed to accelerate water delivery. 
+                 Inequalities in access to water and sanitation were large across areas of residence and counties. 
+                 Rainfall patterns as well as existing investments by national and county government, as well as 
+                 international partners, are some of the key factors that explain part of these differences.</p>
+                 <p>In 2019, the share of the population in rural areas deprived in water was more than twice that in urban 
+                 areas, 46 versus 21 percent, respectively. Likewise, while nearly 3 in 10 persons in rural areas 
+                 were deprived of adequate sanitation, in urban areas the deprivation rate was 1 in 10 persons.</p>
+               ")
+             )
+         )
+),
+
+tabPanel("Map View",
+         leafletOutput("kenya_map", height = 600)
+),
+
+tabPanel("Data Visualization",
+         mainPanel(
+           tabsetPanel(
+             tabPanel("Water Source Graph",
+                      plotlyOutput("water_graph", height = 600, width = 1200)
+             ),
+             tabPanel("Sanitation Graph",
+                      plotlyOutput("sanitation_graph", height = 600, width = 1200)
+             ),
+             tabPanel("Changes",
+                      selectInput("change_indicator", "Select Change Indicator", 
+                                  choices = c("Change in Water", "Change in Sanitation")),
+                      plotlyOutput("changes_graph", height = 600, width = 1200)
+             )
+           )
+         )
+)
+\end{verbatim}
+
+) )
+
+\subsubsection{6. Server}\label{server}
+
+The server function contains the logic for rendering the map and plots
+based on user input and data. It includes three outputs: a map view with
+counties colored by water source data, and two graphs to visualize
+changes in water and sanitation data over time.
+
+\section{Define server logic}\label{define-server-logic}
+
+server \textless- function(input, output, session) \{
+
+\# Map output output\(kenya_map <- renderLeaflet({
+    pal_water <- colorQuantile("YlGnBu", kenya_shp_adm1\)Water.Source.2019,
+n = 5)
+
+\begin{verbatim}
+leaflet(kenya_shp_adm1) %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal_water(Water.Source.2019),
+    weight = 2,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlight = highlightOptions(
+      weight = 5,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    popup = ~paste(
+      "County: ", ADM1_EN,
+      "<br>Water Source 2009: ", Water.Source.2009,
+      "<br>Water Source 2019: ", Water.Source.2019,
+      "<br>% Change Water: ", X..Change.Water.Source,
+      "<br>Sanitation 2009: ", Sanitation.2009,
+      "<br>Sanitation 2019: ", Sanitation.2019,
+      "<br>% Change Sanitation: ", X..Change.Sanitation
+    )
+  ) %>%
+  addLegend(pal = pal_water, values = ~Water.Source.2019, opacity = 0.7, title = "Water Supply", position = "bottomright")
+\end{verbatim}
+
+\})
+
+\# Water Graph output output\$water\_graph \textless- renderPlotly(\{
+plot\_data \textless- data \%\textgreater\% select(County,
+Water.Source.2009, Water.Source.2019) \%\textgreater\%
+pivot\_longer(cols = c(Water.Source.2009, Water.Source.2019), names\_to
+= ``Year'', values\_to = ``Value'')
+
+\begin{verbatim}
+plot_ly(plot_data, x = ~County, y = ~Value, color = ~Year, type = 'scatter', mode = 'lines+markers',
+        line = list(width = 2),
+        marker = list(size = 6),
+        colors = c("Water.Source.2009" = "red", "Water.Source.2019" = "green")) %>%
+  layout(title = "Water Indicators Over Time",
+         xaxis = list(title = "County", tickangle = -45, automargin = TRUE, tickmode = "array", tickvals = plot_data$County, tickfont = list(size = 10)),
+         yaxis = list(title = "Water Source (%)", titlefont = list(size = 16)),
+         margin = list(b = 300, t = 50, l = 80, r = 50),
+         width = 1200,  
+         showlegend = TRUE) %>%
+  config(displayModeBar = FALSE)
+\end{verbatim}
+
+\})
+
+\# Sanitation Graph output output\$sanitation\_graph \textless-
+renderPlotly(\{ plot\_data \textless- data \%\textgreater\%
+select(County, Sanitation.2009, Sanitation.2019) \%\textgreater\%
+pivot\_longer(cols = c(Sanitation.2009, Sanitation.2019), names\_to =
+``Year'', values\_to = ``Value'')
+
+\begin{verbatim}
+plot_ly(plot_data, x = ~County, y = ~Value, color = ~Year, type = 'scatter', mode = 'lines+markers',
+        line = list(width = 2),
+        marker = list(size = 6),
+        colors = c("Sanitation.2009" = "blue", "Sanitation.2019" = "green")) %>%
+  layout(title = "Sanitation Indicators Over Time",
+         xaxis = list(title = "County", tickangle = -45, automargin = TRUE, tickmode = "array", tickvals = plot_data$County, tickfont = list(size = 10)),
+         yaxis = list(title = "Sanitation (%)", titlefont = list(size = 16)),
+         margin = list(b = 300, t = 50, l = 80, r = 50),
+         width = 1200,
+         showlegend = TRUE) %>%
+  config(displayModeBar = FALSE)
+\end{verbatim}
+
+\})
+
+\# Changes Graph output output\(changes_graph <- renderPlotly({
+    if (input\)change\_indicator == ``Change in Water'') \{ plot\_data
+\textless- data \%\textgreater\% select(County, X..Change.Water.Source)
+title\_text \textless- ``\% Change in Water (2009-2019)'' \} else \{
+plot\_data \textless- data \%\textgreater\% select(County,
+X..Change.Sanitation) title\_text \textless- ``\% Change in Sanitation
+(2009-2019)'' \}
+
+\begin{verbatim}
+plot_ly(plot_data, x = ~County, y = ~get(input$change_indicator), type = 'bar', marker = list(color = 'lightblue')) %>%
+  layout(title = title_text,
+         xaxis = list(title = "County", tickangle = -45, automargin = TRUE, tickmode = "array", tickvals = plot_data$County, tickfont = list(size = 10)),
+         yaxis = list(title = "% Change", titlefont = list(size = 16)),
+         margin = list(b = 300, t = 50, l = 80, r = 50),
+         width = 1200)
+\end{verbatim}
+
+\}) \}
+
+\subsubsection{7. Running the App}\label{running-the-app}
+
+To run the Shiny app, execute the following code in R:
+shiny::runApp(``E:/Learning/water and sanitation.R'')
+
+\end{document}
